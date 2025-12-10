@@ -1,3 +1,7 @@
+"""
+Plots related to the model 'ring2' with a hidden connectivity component. See Figs. 4 and S7.
+"""
+
 ###### Load data and perform PCA 
 if !@isdefined(pca_results)
     include("plot_CDM.jl")
@@ -5,6 +9,7 @@ if !@isdefined(pca_results)
     interrupt()
 end
 
+include("more_utils.jl")
 # %% #################################################
 """
 Plot PCA loadings vs. ξ
@@ -122,33 +127,3 @@ xlabel("time [ms]")
 
 xlim(0,4000)
 tight_layout()
-
-# %% ###############################################
-"""
-PCA over trial-averaged trajectories
-"""
-
-include("../revision2/more_utils.jl")
-N_reps=4
-N_pcs=7
-
-av_act = rep_average_dict(LPspikes, N_reps)
-av_pca_res = Dict( @time name => 
-    fit(PCA, act; maxoutdim=N_pcs) 
-    for (name,act) in av_act)
-
-pc_loadings_av = Dict( @time name => loadings(pca) for (name,pca) in av_pca_res)
-
-ratios_pca_av = Dict(
-    name => principalvars(pcares)/var(pcares) 
-    for (name,pcares) in av_pca_res
-)
-
-_ = plot_PC_vs_ξ(models, N_pcs; emb_dict = pc_loadings_av, a=1.6, sharey=false, ratios_pca=ratios_pca_av)
-
-_,ax = subplots(1,1, figsize=(3,3))
-plot_ratio_pca(ax,ratios_pca_av, markers, cols, N_pcs)
-
-subdict(dict, keys) = Dict( k => dict[k] for k in keys if haskey(dict,k))
-_,ax = subplots(1,1, figsize=(3,3))
-plot_ratio_pca(ax,subdict(ratios_pca, models), markers, cols, N_pcs)

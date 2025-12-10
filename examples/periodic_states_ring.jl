@@ -1,3 +1,8 @@
+"""
+Example: Periodic states in ring model. See Fig. S3.
+"""
+
+
 using PyPlot
 using ProgressBars
 pygui(true)
@@ -231,18 +236,17 @@ print("Cumulative variance explained by 2 PCs: ",
 
 
 ### PLOT 3D loadings of PCA
-plot_embed(emb; kwargs...) = scatter3D(emb[1,:],emb[2,:],emb[3,:]; kwargs...)
+plot_embed(ax, emb; kwargs...) = ax.scatter(emb[1,:],emb[2,:],emb[3,:]; kwargs...)
 
 c = Z 
 
-figure(figsize=(6,3))
-subplot(1,2,1)
-plot_embed(loadings_1; c=c, s=10, cmap="hsv")
-zlim(-1,1)
-subplot(1,2,2)
-plot_embed(loadings_2; c=c, s=10, cmap="hsv") 
-zlim(-1,1)
-xlabel("PC1"); ylabel("PC2"); zlabel("PC3")
+# figure(figsize=(6,3))
+f, axs = subplots(1,2, figsize=(6,3), subplot_kw=Dict("projection"=>"3d"))
+plot_embed(axs[1], loadings_1; c=c, s=10, cmap="hsv")
+axs[1].set_zlim(-1,1)
+plot_embed(axs[2], loadings_2; c=c, s=10, cmap="hsv") 
+axs[2].set_zlim(-1,1)
+f.suptitle("PC loadings")
 
 ###### Plot folded ring:
 function plot_folded_ring(embs2d, Z; c)
@@ -253,10 +257,10 @@ function plot_folded_ring(embs2d, Z; c)
 end
 
 figure(figsize=(6,3))
-subplot(1,2,1)
+subplot(1,2,1, projection="3d")
 plot_folded_ring(loadings_1[1:2,:], Z, c=Z)#c0s[1])
 xlabel("PC1"); ylabel("PC2")
-subplot(1,2,2)
+subplot(1,2,2, projection="3d")
 plot_folded_ring(loadings_2[1:2,:], Z, c=Z)#c0s[2])
 xlabel("PC1"); ylabel("PC2")
 tight_layout()
@@ -278,23 +282,6 @@ tight_layout()
 figure()
 plot(times, traj_1[:,1], "C0", lw=2)
 plot(times, traj_1[:,2], "C1", lw=2)
-
-####################### compute embeddings (positions on the ring)
-
-####### tuning to PC1 & PC2
-###### IF PCA done on z-scored data
-# counts_1 = zeros(N,2)
-# counts_2 = zeros(N,2)
-
-# for dim in 1:2
-#     times_neg = findall(traj_1[:,dim] .< 0)
-#     tuning_PC = (sum(spk_s[1], dims=1)  .- 2*sum(spk_s[1][times_neg,:], dims=1)) / length(times) / dt
-#     counts_1[:,dim] = tuning_PC
-#     times_neg = findall(traj_2[:,dim] .< 0)
-#     tuning_PC = (sum(spk_s[2], dims=1)  .- 2*sum(spk_s[2][times_neg,:], dims=1)) / length(times) / dt
-#     counts_2[:,dim] = tuning_PC
-# end
-# xylabels() = xlabel("tuning to PC1"); ylabel("tuning to PC2")
 
 ####### if PCA done on LP-filtered data
 counts_1 = loadings_1[1:2,:]'
@@ -322,13 +309,12 @@ figure(figsize=(4,4))
 plot_loadings(counts_2)
 
 ### Plot folded ring
-figure(figsize=(3,3))
-# subplot(1,2,1)
+figure(figsize=(6,3))
+subplot(1,2,1, projection="3d")
 plot_folded_ring(counts_1', Z, c=Z)
 xylabels()
 tight_layout()
-# subplot(1,2,2)
-figure(figsize=(3,3))
+subplot(1,2,2, projection="3d")
 plot_folded_ring(counts_2', Z, c=Z)
 xylabels()
 tight_layout()
@@ -369,14 +355,3 @@ raster_plot(spks_rast,ind_tshow, inds_show, color="k", lw=.5)
 
 
 ########
-
-######################
-map = "hsv"; limv = 1
-figure(figsize=(4,2))
-scatter(Z,0*Z, c=Z, 
-    cmap=map, alpha=0.1
-)
-    xticks([]); yticks([])
-box(false)
-# plot(Z,exp.(-Z.^2/2))
-tight_layout()

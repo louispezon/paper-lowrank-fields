@@ -1,13 +1,17 @@
+"""
+Targeted Dimensionality Reduction (TDR) on CDM models. See Figs. 4 and S6.
+"""
+
 # %%
 ### Load data and perform PCA 
-@time include("../CDM_5_models/plot_CDM.jl")
+include("plot_CDM.jl")
 interrupt()
 
 # %%
 using LinearAlgebra: qr, diagm
-include("../CDM_5_models/setup_input.jl")
+include(sim_path*"setup_input.jl")
 
-include("../CDM_5_models/plot_utils.jl")
+include("plot_utils.jl")
 include("more_utils.jl")
 
 
@@ -144,39 +148,24 @@ tight_layout()
 # %% 
 
 ### 3d trajs
+# %%
+f, axs = plot_trajs_(tdr_trajs, lw=1, shadow_dims=[1,3], kwargs_shadow=Dict(:alpha => 0.8))
+suptitle("TDR trajectories")
+tight_layout()
+
+# Trial-averaged
 f, axs = plot_trajs_(avg_tdr_trajs, lw=2, shadow_dims=[1,3], kwargs_shadow=Dict(:alpha => 0.8))
 for (name, ax) in zip(keys(avg_tdr_trajs) , axs)
     ax.set_title(name)
     zoom_(ax, 0.9)
     varexp = @sprintf(" (%1.f%%)", 100*sum(explained_var_tdr[name]))
     display_text(ax, varexp; x=1.1, alpha=0.7)
-end
+end    
 
-suptitle("TDR trajectories (avg)")
-tight_layout()
-
-# %%
-f, axs = plot_trajs_(tdr_trajs, lw=1, shadow_dims=[1,3], kwargs_shadow=Dict(:alpha => 0.8))
-suptitle("TDR trajectories")
+suptitle("TDR trajectories (trial-averaged)")
 tight_layout()
 
 
-
-# #%% Overlaid
-
-# fig,ax = subplots(1,1, subplot_kw=Dict("projection"=>"3d"))
-# for name in sim_models
-#     par__ = shwn_trajs[name] 
-#     ax.plot(par__[1,:], par__[2,:], par__[3,:], color=cols[name], alpha=0.8)
-#     # scatter(loa[:,1], loa[:,2], c=loa[:,3], cmap=cmap(cols[name], bright=.8, dark=.8), alpha=0.5, s=5)
-#     # colorbar()
-#     shadow_(ax, 3, par__'; plot_fun=plot, lw=1, alpha=0.3, zmin=-2, c=.7*cols[name])
-#     shadow_(ax, 1, par__'; plot_fun=plot, lw=1, alpha=0.3, zmin=-2, c=.7*cols[name])
-#     title("TDR trajs")
-# end
-# # ax.plot(par__[1,:], par__[2,:], par__[3,:], lw=2, color=cols["ring"], alpha=1)
-# # ax.set_xticks([-1,0,1], []); ax.set_yticks([-1,0,1], []); ax.set_zticks([-1,0,1], []);
-# tight_layout()
 
 # %% #################################
 ### 2d trajs (color / motion)
@@ -197,7 +186,6 @@ for (ax, name ) in zip(axs, sim_models)
     # ax.plot(rd.color', rd.motion', c=cols[name],lw=1.5)
     # ax.plot(tdr_trajs[name][1,:], tdr_trajs[name][2,:], c="Gray", lw=1, alpha=.5, zorder=-1)#, color='k')
     title(nothing)
-    fig.savefig("../figs/revision2/tdr_trajs/"*name*".png", dpi=400, transparent=true)
 end
 
 # %% #################################

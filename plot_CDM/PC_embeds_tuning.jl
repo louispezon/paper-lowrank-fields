@@ -1,8 +1,13 @@
+"""
+PC embeddings and tuning in 5 CDM models. See Fig. 5 and Fig. S5.
+"""
+
+
 ###### Load data and perform PCA 
-include("plot_CDM.jl")
+@time include("plot_CDM.jl")
 include("plot_utils.jl")
 
-interrupt()
+# interrupt()
 
 # %% ##################################################
 """
@@ -10,71 +15,12 @@ Plot all readouts
 """
 
 
-include("setup_input.jl")
+include(sim_path*"setup_input.jl")
 
 
 
 plot_readouts(readouts)#; tmax=4000)
 
-
-
-# %% ###################################################
-"""
-Trial-averaged trajs and readouts
-"""
-comp_factor = 10
-N_conds = 8
-T_allconds = N_conds * T_trial
-allconds_duration = T_allconds/dt / comp_factor |> round |> Int
-comp_times_allconds = comp_times[1:allconds_duration]
-
-function trial_averaged_response(readout::Readout; comp_factor=10)
-    
-    N_allconds = N_trials / N_conds |> round |> Int
-    
-    start_times = [i*T_allconds for i in 0:(N_allconds-1)]
-    start_inds = start_times / dt / comp_factor .|> round .|> Int
-    
-
-    function get_mean_val(field)
-        vals = getfield(readout, field)
-        all_resp_val = [
-            vals[start_ind+1 : start_ind+allconds_duration] 
-            for start_ind in start_inds
-        ]
-        mean_resp_val = mean(hcat(all_resp_val...)', dims=1)
-        return mean_resp_val
-    end
-    
-    mean_readout = Dict(
-        key => get_mean_val(key) for key in fieldnames(Readout)
-    )
-
-    return Readout(mean_readout[:color], mean_readout[:motion], mean_readout[:choice]) 
-
-end
-
-
-mean_readouts = Dict(
-    name => trial_averaged_response(readouts[name]; comp_factor=comp_factor)
-    for name in sim_models
-)
-
-
-# %% ########## trial averaged trajectories
-
-
-
-figure(figsize=(15,3))
-for (name,mean_readout) in mean_readouts
-    subplot(1,N_models, findfirst(==(name), sim_models))
-    plot_readout_traj(name,mean_readout; arrows_=true, box_=false)
-end
-
-########### trial averaged readouts
-
-sc_I=6
-plot_readouts(mean_readouts; readout_times=comp_times_allconds, tmax=4000, I1 = sense1/sc_I, I2 = sense2/sc_I)
 
 
 
@@ -129,11 +75,7 @@ for name in sim_models#[1:1]
     tight_layout()
 end
 
-# %%
-for (f,ax,name) in zip(emb_figs, emb_axs, sim_models)
-    f.savefig("../figs/revision2/PC_embds/"*name*".png", dpi=300, transparent=true)
-    close(f)
-end
+
 
 # %%## PC ratios
 markers = Dict("ring" => "o", "MS" => "v", "hid" => "s", "PS" => "^", "clust" => "D")
@@ -149,7 +91,6 @@ legend()
 tight_layout()
 
 
-# plot_cmaps(sim_models)
 
 
 
@@ -211,10 +152,3 @@ for (i,name) in enumerate(sim_models)
     gca().set_aspect("equal")
     tight_layout()
 end
-
-# for name in sim_models
-#     savefig("../figs/revisions/CDM/tunings/"*name*".png", transparent=true, dpi=300)
-#     close(gcf())
-# end
-
-

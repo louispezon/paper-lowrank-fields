@@ -1,3 +1,8 @@
+"""
+Limit-cycle trajectories for two models with continuous and discontinuous transfer functions. See Fig. S3.
+"""
+
+
 using PyPlot
 using ProgressBars
 pygui(true)
@@ -24,11 +29,6 @@ J = 1
 r0 = 2.9348 
 
 N = 2000
-## ring:
-# J_ring = J
-# f_ring=(cos,sin)
-# g_ring=(z->J_ring*cos(z+δ),z->J_ring*sin(z+δ))
-# Z_ring = 2*pi*rand(N) |> sort!
 
 
 

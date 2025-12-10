@@ -10,5 +10,8 @@ Pkg.add([
     "Random",
     "MultivariateStats",
     "PyPlot",
-    "LinearAlgebra"
+    "LinearAlgebra",
+    "NLsolve",
+    "Colors",
+    "ColorSchemes"
 ])

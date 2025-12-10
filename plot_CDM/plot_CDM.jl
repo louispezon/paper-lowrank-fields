@@ -1,3 +1,6 @@
+"""
+Primary analysis on CDM models. Used for all plotting scripts. 
+"""
 # %%
 include("../src.jl")
 
@@ -10,10 +13,10 @@ using MultivariateStats
 using PyPlot
 pygui(true)
 
-include("defs.jl")
-include("models.jl")
+sim_path = "../simulate_CDM/"
+include(sim_path*"defs.jl")
+include(sim_path*"models.jl")
 
-# include("setup_input.jl")
 
 include("plot_utils.jl")
 
@@ -27,7 +30,9 @@ PLOT = false
 
 
 ## 32 trials
-@time @load "../data/good_CDM5models_N3000_32trials_K0.39_seed1234_compressed.jld2" ## GOOD. with K=0.39. Works well!
+# @time @load "data/good_CDM5models_N3000_32trials_K0.39_seed1234_compressed.jld2" ## GOOD. with K=0.39. Works well!
+@time @load "data/CDM5models_N3000_32trials_K0.39_seed1234_compressed.jld2" 
+
 comp_times = LinRange(0, comp_times[end], size(comp_times,1))
 # %% ###############################
 cols = Dict(
@@ -194,32 +199,3 @@ end
 
 
 
-
-
-# interrupt()
-# # %% ####### HID MODEL
-
-
-# loa_hid = pc_loadings["hid"]
-# figure(figsize=(15,3))
-# for pc in 1:5
-#     subplot(1,5,pc)
-#     scatter(ξs, loa_hid[:,pc], color=cols["hid"], alpha=0.5)
-#     ylabel("PC$pc")
-#     xlabel("ξ")
-# end
-# tight_layout()
-
-
-
-# pcs_hid = [1,2,4]
-# fig=figure()
-# ax = fig.add_subplot(projection="3d")
-# ax.scatter(loa_hid[:,pcs_hid[1]], loa_hid[:,pcs_hid[2]], loa_hid[:,pcs_hid[3]],
-#      ".", c=loa_hid[:,pcs_hid[3]], alpha=0.5, cmap=cmap(cols["hid"], bright=.8, dark=.8), s=15)
-# title("hid model")
-# xlabel("PC$(pcs_hid[1])") ; ylabel("PC$(pcs_hid[2])") ; zlabel("PC$(pcs_hid[3])")
-# tight_layout()
-
-# ######################################################## 
-# ######################################################## 

@@ -1,3 +1,7 @@
+"""
+Limit-cycle trajectories for two different models: compare PC embeddings. See Fig. 3C-D and Fig. S2.
+"""
+
 using PyPlot
 using ProgressBars
 pygui(true)
@@ -120,10 +124,10 @@ print(" done.\n")
 plot_embed(emb; kwargs...) = scatter3D(emb[1,:],emb[2,:],emb[3,:]; kwargs...)
 ### PLOT 3D loadings of PCA
 figure(figsize=(6,3))
-subplot(1,2,1)
+subplot(1,2,1, projection="3d")
 plot_embed(loadings_ring'; color="C0")
 zlim(-1,1)
-subplot(1,2,2)
+subplot(1,2,2, projection="3d")
 plot_embed(loadings_gaus'; color="C1")
 zlim(-1,1)
 
@@ -269,21 +273,6 @@ tight_layout()
 ########################################
 
 
-time_points = [400, 700, 1000] * (1e-1/dt) .|> round .|> Int
-fig1a = PyPlot.figure(figsize=(5,2))
-for (i,t) in enumerate(time_points)
-    subplot(1,length(time_points),i)
-    r_ring = h_t_ring[t,:] .|> φnew
-    scatter(cos.(embed_ring), sin.(embed_ring) , label="2D pop.", alpha=.6, c=r_ring)
-    
-    ticks=0:0.5: R
-    # xticks(ticks, []) ; yticks(ticks, []) #; zticks(ticks, [])
-    xticks([]) ; yticks([]) 
-    box(false)
-end
-# colorbar(label=L"r(t, z)")
-tight_layout()
-
 using Colors
 
 fig1c = PyPlot.figure(figsize=(5,2))
@@ -353,14 +342,3 @@ inds_show = inds[1:sp:N]
 
 fig3=figure(figsize=(5,2.1))
 raster_plot(spikes_gaus,ind_tshow, inds_show; sparsity=1, color="k")
-
-# fig3=figure(figsize=(5,2.1))
-# for (y,i) in enumerate(inds_show)
-#     vlines(times[1:ind_tshow][spikes_gaus[1:ind_tshow,i] .!= 0], ymin=y, ymax=y+1, color="k")
-# end
-# xlim((0,tshow))
-# xlabel("time [ms]")
-# yticks([Nshow,1],[L"N","1"])
-# # ax2.set_ylabel("neuron index")
-# ylim(((1,Nshow)))
-# tight_layout()

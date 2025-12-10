@@ -1,3 +1,8 @@
+"""
+Limit-cycle trajectories for two different models. See Fig. 3C-D.
+"""
+
+
 using PyPlot
 using ProgressBars
 pygui(true)
@@ -140,55 +145,3 @@ ylabel(L"$\Phi(\varrho)$ [$\tau R$]")
 legend()
 # ylim(0,4)
 tight_layout()
-
-## ########################################################################
-###########################################################################
-###########################################################################
-## Black and white figs (for the book)
-
-fsize = 2.5
-for (trajs,r0, ls) in zip((κ_t_ring, κ_t_gaus), (r0_ring, r0_gaus), ("-", "--"))
-    
-    figure(figsize=(fsize,fsize))
-    plot_flow(rax,ray, dx,dy, unit_κ=r0,plot_speed=false, density=.5)
-    for traj in trajs
-        plot(traj[:,1]/r0, traj[:,2]/r0, lw=2, color="k", ls=ls)
-        # initial states:
-        scatter(traj[1,1]/r0, traj[1,2]/r0, color="k", s=40, marker="x")
-    end
-
-    xticks([0],[]); yticks([0],[])
-    xlabel(L"\kappa_1")
-    ylabel(L"\kappa_2")
-    tight_layout()
-end
-
-## ### 
-Nplot = 150
-Zplot_gaus = hcat([Z_gaus[i] for i in 1:Nplot]...)
-
-Zplot_ring = []
-for θ in 0:0.05:1
-    jit = 0.1*randn()
-    push!(Zplot_ring, [cos(2pi*θ + jit), sin(2pi*θ + jit)])
-end
-Zplot_ring = hcat(Zplot_ring...)
-
-function plot_Z_for_book(Zplot; arrows=true)
-    figure(figsize=(3,3))
-    scatter(Zplot[1,:], Zplot[2,:], facecolor=:lightgray, s=15, alpha=0.7, edgecolor="k")
-    axis("equal"); 
-    fr = 2
-    if arrows
-        arrow(-fr, 0, 2*fr, 0, head_width=0.05*fr, head_length=0.1*fr, fc="k", ec="k", zorder=-1)
-        arrow(0, -fr, 0, 2*fr, head_width=0.05*fr, head_length=0.1*fr, fc="k", ec="k", zorder=-1)
-    end
-    xlim(-1.1*fr,1.1*fr); ylim(-1.1*fr,1.1*fr)
-    box(false)
-    xticks([]); yticks([])
-end
-
-plot_Z_for_book(Zplot_gaus)
-
-plot_Z_for_book(Zplot_ring; arrows=false)
-plot(cos.(phis), sin.(phis), "--", color="k", lw=1, zorder=-1)

@@ -1,3 +1,7 @@
+"""
+Example: 2D dynamics with 1D circuit space. See Fig. 3A-B.
+"""
+
 using PyPlot
 using ProgressBars
 pygui(true)

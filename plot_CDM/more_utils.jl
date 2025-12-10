@@ -1,4 +1,4 @@
-######### Additional utils for Revision 2
+######### Additional utils for linear dimensionality reduction #########
 
 function rep_average_(act_; N_reps, T = nothing)
     if isnothing(T); T = size(act_,2) / N_reps |> round |> Int; end
