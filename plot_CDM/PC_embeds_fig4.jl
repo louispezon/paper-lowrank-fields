@@ -10,18 +10,6 @@ end
 include("plot_utils.jl")
 
 
-# %% ##################################################
-"""
-Plot all readouts
-"""
-
-
-include(sim_path*"setup_input.jl")
-
-
-
-plot_readouts(readouts)#; tmax=4000)
-
 
 
 

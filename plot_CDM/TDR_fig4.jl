@@ -82,7 +82,7 @@ function TDR_projector(F, act_)
 end
 
 tdr_axes = Dict(
-    name => TDR_projector(F_matrix, denoised_act[name]) for name in sim_models 
+    @time name => TDR_projector(F_matrix, denoised_act[name]) for name in sim_models 
 )
 
 

@@ -1,4 +1,6 @@
-
+"""
+Compute tuning to task variables for 5 CDM models. See Fig. S5.
+"""
 
 ###### Load data and perform PCA 
 if !@isdefined(pca_results)
@@ -7,6 +9,16 @@ end
 include("plot_utils.jl")
 include(sim_path*"setup_input.jl")
 
+
+
+# %% ##################################################
+"""
+Plot all readouts
+"""
+
+
+
+plot_readouts(readouts)#; tmax=4000)
 
 # %% ###################################################
 """
