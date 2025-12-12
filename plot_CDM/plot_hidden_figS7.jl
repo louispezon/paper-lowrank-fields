@@ -1,5 +1,5 @@
 """
-Plots related to the model 'ring2' with a hidden connectivity component. See Figs. 4 and S7.
+Plots related to the model 'ring2' with a hidden connectivity component. See Fig. S7.
 """
 
 ###### Load data and perform PCA 
@@ -9,7 +9,7 @@ if !@isdefined(pca_results)
     interrupt()
 end
 
-include("more_utils.jl")
+
 # %% #################################################
 """
 Plot PCA loadings vs. ξ

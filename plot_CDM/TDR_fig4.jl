@@ -3,16 +3,17 @@ Targeted Dimensionality Reduction (TDR) on CDM models. See Figs. 4 and S6.
 """
 
 # %%
-### Load data and perform PCA 
-include("plot_CDM.jl")
-interrupt()
+###### Load data and perform PCA 
+if !@isdefined(pca_results)
+    include("plot_CDM.jl")
+end
 
 # %%
 using LinearAlgebra: qr, diagm
 include(sim_path*"setup_input.jl")
 
 include("plot_utils.jl")
-include("more_utils.jl")
+
 
 
 # %% #################################
@@ -37,6 +38,7 @@ neuron=rand(1:N)
 figure(figsize=(6,4))
 plot(comp_times, denoised_act_ring[neuron,:], lw=2, label="denoised")
 plot(comp_times, LPspikes["ring"][neuron,:], lw=1, c="k", alpha=.4)
+title("Denoised activity (neuron $neuron)")
 
 
 

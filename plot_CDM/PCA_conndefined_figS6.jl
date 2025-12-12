@@ -1,14 +1,16 @@
 """
-PCA analysis on CDM models. See Fig. S6.
+Projections on PCA and connectivity-defined axes for CDM models. See Fig. S6.
 """
 
 # %%
-### Load data and perform PCA 
-include("plot_CDM.jl")
+###### Load data and perform PCA 
+if !@isdefined(pca_results)
+    include("plot_CDM.jl")
+end
 # %% #################################################
 include("plot_utils.jl")
 include(sim_path*"setup_input.jl")
-include("more_utils.jl")
+
 
 using LinearAlgebra: qr, norm
 

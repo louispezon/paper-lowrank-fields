@@ -69,12 +69,13 @@ end
 println("Low Pass... ")
 LPspikes = Dict( @time  name => low_pass_filter(res.spikes',α=α_LP) for (name,res) in results)
 
-
-LPex = LPspikes["ring"]
-figure()
-plot(LPex[1:5,1:1000]', lw=2)
-title("Low-passed spikes")
-xlabel("time [ms]")
+if PLOT
+    LPex = LPspikes["ring"]
+    figure()
+    plot(LPex[1:5,1:1000]', lw=2)
+    title("Low-passed spikes")
+    xlabel("time [ms]")
+end
 
 
 

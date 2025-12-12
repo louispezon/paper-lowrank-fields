@@ -430,7 +430,7 @@ end
 
 ###################################################
 ###################################################
-
+## NOT USED
 function run_full_ext_input(; f, g, Z, κ0, φ, times, ext_input, 
     spiking=true, dt=dt,
     conn_disorder = false, Law_χ=Normal(0,1), return_spikes=false)
