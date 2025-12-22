@@ -15,30 +15,27 @@ J=1
 
 R =  10*1/τ
 J = 1
-# step(x) = R*(x > 0) # transfer function
+
 
 N = 2000
 ## ring:
 J_ring = J
-# M_ring = 1/2*[[1, 0] [0, 1]] |> inv
 f_ring=(cos,sin)
 g_ring=(z->J_ring*cos(z+δ),z->J_ring*sin(z+δ))
 Z_ring = 2*pi*rand(N) |> sort!
 
-r0_ring = 2.9348# τ * J_ring * R /π * cos(δ)
+r0_ring = 2.9348
 
 
 ## Gauss: σ and J_gaus match derivative at 0 and radius !!
-J_gaus = 1.39 * J_ring #sqrt(2/π) * J_ring # r0_ring /(τ*R) * sqrt(2*π)
-# M_gaus = [[1, 0] [0, 1]] |> inv
+J_gaus = 1.39 * J_ring 
 f_gaus = (z->z[1],z->z[2])
 g_gaus = (z->J_gaus*(rotate(δ)(z))[1] , z->J_gaus*(rotate(δ)(z))[2])
 
 σ =  0.6 #1
 Z_gaus = [σ*randn(2) for n in 1:N]
-# Z_gaus = [randn(2) for n in 1:N]
 
-r0_gaus = r0_ring #τ * J_gaus * R / sqrt(2*pi) * cos(δ)
+r0_gaus = r0_ring 
 
 
 include("../src.jl")
@@ -49,19 +46,10 @@ dkappa(κ) = -κ/τ + J*R/π*rotate(δ)(κ)/r(κ...)
 dx(x,y) = dkappa([x,y])[1]
 dy(x,y) = dkappa([x,y])[2]
 
-## ###################  transfer function
-# xs=-10:0.1:10
-# for a=1:5
-#     φnew(x) = R*(tanh(x/a -1)+1)/2
-#     plot(xs,φnew.(xs))
-# end
 
-# φnew(x) = R*(tanh(x-1)+1)/2
+
 using SpecialFunctions ; φnew(x) = R*(erf(x)+1)/2
-# φnew(x) = R*(tanh(x)+1)/2 ### USED IN THE PAPER
-# φnew(x) = R*( x/a*(0<x<a) + (x>=a) )
-# φnew(x) = R*(tanh(x/a-1)+1)/2 ## less good latent dynamics but more beautiful manifold
-# φnew(x) = R*(x>0)
+
 
 dt = 2e-1 # ms
 T_f = 10000 #ms
@@ -147,13 +135,12 @@ print("Explained variance (2PCs): \n",
 "ring: ", sum(ratios_ring[1:2]), " % \n",
 "gaus: ",sum(ratios_gaus[1:2]),  " % \n")
 
-# using Printf
-# labels(dims, ratios) = [@sprintf("PC%d (%1.f %%)",dim, 100*ratios[dim]) for dim in dims]
-
 
 ## ###################
-traj_ring =  activity_1d * loadings_ring / N
-traj_gaus = activity_2d * loadings_gaus / N
+# principalvars(pca_result_ring)
+# principalvars(pca_result_gaus)
+traj_ring =  activity_1d * loadings_ring ./ principalvars(pca_result_ring)' / N
+traj_gaus = activity_2d * loadings_gaus ./ principalvars(pca_result_gaus)' / N
 
 
 phase_ring = atan.(traj_ring[:,2],traj_ring[:,1]) .+ π
@@ -168,9 +155,6 @@ function plot_2_PCs(subsample=10; rotation=0)
     rot_traj_ring = (traj_ring[1:subsample:end,1:2]' |> rotate(rotation))'
     plot(rot_traj_ring[:,1],rot_traj_ring[:,2], lw=0, marker=".", label="$N_cycles_ring cycles")
     plot(traj_gaus[1:subsample:end,1],traj_gaus[1:subsample:end,2], lw=0, marker=".", label="$N_cycles_gaus cycles", alpha=.5)
-    # xlabel("PC1") 
-    # ylabel("PC2")
-    # xticks(-1:1/2:1); yticks(-1:1/2:1)
     xticks([]); yticks([]); 
     box(false)
     tight_layout()
@@ -180,7 +164,6 @@ end
 
 
 ## ##########################
-### Good config
 f = figure(figsize=(3,3))
 # subplot(1,3,1)
 rotation = -phase_ring[500]+phase_gaus[500]
@@ -207,7 +190,7 @@ print("Mean period: \n
 
 ## # Compute 3D embeds
 ####### tuning to PC1 & PC2
-function get_embeds(;is_z_scored=true)
+function get_embeds(;is_z_scored=false)
     """ IF PCA was done on z-scored spikes, then we need to compute the TUNING to PCs. 
         IF PCA was done on LP spikes, then we can simply take PC loadings ! """
 
@@ -253,7 +236,10 @@ gca().set_aspect("equal")
 xticks([]); yticks([]); box(false)
 tight_layout()
 
-## ########## EMBEDDINGS from tuning to PC1 & PC2
+################################################################
+########## Plot neural field over the similarity space (ring and plane)
+########################################
+## ########## empirical locations in similarity space from embeddings
 
 embed_ring = -[atan(pos[2],pos[1]) for pos in eachrow(counts_ring[:,1:2])] .+ π
 embed_gaus = rotate(0)(counts_gaus[:,1:2]')'
@@ -295,11 +281,8 @@ angles=[6π/10, π].+π/5
 # angles=[π,3π/2]
 inds = [findmin(abs.(embed_ring .- angle))[2] for angle in angles]
 vlines(angles, ymin=0, ymax=R, ls=":", color="k", alpha=.5)
-# [scatter([angle angle],[0 R],ls=":", color="k", s=1, lw=10) for angle in angles]
 for (i,t) in enumerate(t_show)
-    # subplot(1,length(time_points),i)
     r_ring = h_t_ring[t,inds] .|> φnew
-    # plot(embed_ring, h_t_ring[t,:] .|> φnew, alpha=.6, color=cols[i], lw=3)
     scatter(embed_ring[inds], h_t_ring[t,inds] .|> φnew, alpha=1, color=cols[i], s=60, edgecolor="k")
 end
 
@@ -320,8 +303,7 @@ for (i,t) in enumerate(timepoints_2)
     if i==1
         scatter(embed_gaus[:,1],embed_gaus[:,2], label="2D pop.", alpha=1/2, c="C1", s=1) ; 
     end
-    ticks=0:0.5: R
-    # xticks(ticks, []) ; yticks(ticks, []) #; zticks(ticks, [])
+    # ticks=0:0.5: R
     xticks([]) ; yticks([]) 
     box(false)
 end

@@ -1,5 +1,5 @@
 """
-Example: Periodic states in ring model. See Fig. S4.
+Example: Periodic states in ring model. See Fig. S2E.
 """
 
 
@@ -34,7 +34,7 @@ CHOICE = 2
 
 ##############################################
 """
-##### CHOICE 2 (works !!)
+#####
 4 Fourier modes, with freq 1,... 4
 2 stable modes: 2 and 3
 “local-like connectivity profile” 
@@ -60,38 +60,46 @@ f, g = f_g_from_λ(λs; δ=δ)
 λ0s = [1, 0, 0, 0]
 _,g0 = f_g_from_λ(λ0s; δ=δ)
 
-col1 = "C1"
-col0 = "C0"
 
 
 #####################
 ### PLOT the connectivity profiles
-# profile(λs) = z-> J*sum([f[2*n-1](z)*λs[n] for n in 1:n_modes], dims=1)
 profile(g) = z-> sum([g[2*n-1](z) for n in 1:n_modes], dims=1) / cos(δ)
-function plot_profile(g; kwargs...)
+function plot_profile(g; plotZ=true, kwargs...)
     Z = 0:2π/100:2π
-    plot(Z.-π, profile(g).(Z.-π); lw=2, zorder=1, kwargs...)
+    prfl=profile(g).(Z.-π)
+    plot(Z.-π, prfl; lw=2, zorder=1, kwargs...)
     # plot(Z.-π, 0*Z, "k--", zorder=0)
-    scatter(Z.-π, 0*Z,c=Z, cmap="hsv", zorder=0, s=5)
-    xlabel(L"z")
+    plotZ ? scatter(Z.-π, 0*Z,c=Z, cmap="hsv", zorder=0, s=3) : nothing
+    xlabel(L"z-z'")
     xticks([-π,0,π], [L"-\pi", "0", L"\pi"])
     tight_layout()
 end
-# figure(figsize=(6,2))
-# _,ax = subplots(1,2, figsize=(6,2), sharey=true)
-# subplot(121)
-
-figure(figsize=(2,2))
-plot_profile(g; c=col1)
-ylim(-1.5,2.5)
-yticks([0,1])
-# subplot(122)
-figure(figsize=(2,2))
-plot_profile(g0; c=col0)
-ylim(-1.5,1.5)
-yticks([0,1])
 
 
+col1 = :red
+col0 = "C0"
+
+
+figure(figsize=(2,1.7))
+plot_profile(g0; c=col0, lw=2.2, alpha=.9, ls="-")
+plot_profile(g; c=col1, lw=2.2, alpha=.8)
+# ylim(-1.5,2.5)
+yticks([0,1], labels=["0", L"$J$"])
+tight_layout()
+
+
+function miniplot_profile(g; c)
+    figure(figsize=(.7,.7))
+    plot_profile(g; plotZ=false, c=c, lw=3)
+    hlines(0, xmin=-π, xmax=π, lw=1, color="k", zorder=0)
+    xticks([]); yticks([]); xlabel("")
+    box(false)
+    tight_layout()
+end
+
+miniplot_profile(g0; c=col0)
+miniplot_profile(g; c=col1)
 
 
 
@@ -101,6 +109,12 @@ yticks([0,1])
 # Z = 2*pi*rand(N) |> sort!
 Z = 0:2*pi/N:2*pi*(1-1/N) |> shuffle ### equally spaced positions
 
+# plot circle (circuit space)
+figure(figsize=(2,2))
+scatter(cos.(Z), sin.(Z), c=Z, cmap="hsv", s=5)
+gca().set_aspect("equal")
+xticks([]); yticks([]); box(false)
+tight_layout()
 
 
 #####################
@@ -113,12 +127,11 @@ k = 3.09 * cos(δ) ## Solution to k = τJΦ(k)
 #####################
 
 dt = 1e-1 # ms
-T_f = 2000 #ms
+T_f = 10000 #ms
 times=0:dt:T_f
 
 function gen_comp(n=1) ; return randn(n)/sqrt(2) ; end
 ######## Initial conditions:
-###### For CHOICE 1:
 
 ########## For CHOICE 2:
 function generate_init_cond(mode)
@@ -127,21 +140,6 @@ function generate_init_cond(mode)
     return vec'
 end
 
-# if CHOICE == 1
-#     κ0s = 0.5*[
-#         [generate_init_cond(mode) for mode in [1,4]]..., 
-#         # (generate_init_cond(1)+generate_init_cond(2))/2,
-#         # generate_init_cond(3)
-#         ]
-# end
-
-# if CHOICE == 2
-#     κ0s = 0.5*[
-#         [generate_init_cond(mode) for mode in [3,2]]..., 
-#         # (generate_init_cond(2)+generate_init_cond(3))/2,
-#         # generate_init_cond(1)
-#         ]
-# end
 
 κ0_per = 0.25*generate_init_cond(3)
 κ0_nor = 0.25*generate_init_cond(1)
@@ -199,11 +197,9 @@ tight_layout()
 
 
 
-interrupt()
+# interrupt() # 
 #####################
 ### DO PCA
-# print("Z-scoring...")
-# activity_s = Z_score.(spk_s; return_LPspikes=true) 
 
 print("LP-filtering...")
 activity_s = [low_pass_filter(spk'; α=1e-2)' for spk in spk_s]
@@ -249,41 +245,43 @@ axs[2].set_zlim(-1,1)
 f.suptitle("PC loadings")
 
 ###### Plot folded ring:
-function plot_folded_ring(embs2d, Z; c)
-    scatter3D(embs2d[1,:], embs2d[2,:], Z, c=c, cmap="hsv", s=10)
-    zlabel("z")
-    xticks([]); yticks([]); 
-    zticks([0,2π], ["0", L"2\pi"])
+function plot_folded_ring(ax,embs2d, Z; c)
+    ax.scatter(embs2d[1,:], embs2d[2,:], Z, c=c, cmap="hsv", s=10)
+    ax.set_zlabel("z")
+    ax.set_zticks([0,2π], ["0", L"2\pi"])
+    ax.set_xlabel("PC1"); ax.set_ylabel("PC2")
+    ax.set_xticks([]); ax.set_yticks([]); 
 end
 
-figure(figsize=(6,3))
-subplot(1,2,1, projection="3d")
-plot_folded_ring(loadings_1[1:2,:], Z, c=Z)#c0s[1])
-xlabel("PC1"); ylabel("PC2")
-subplot(1,2,2, projection="3d")
-plot_folded_ring(loadings_2[1:2,:], Z, c=Z)#c0s[2])
-xlabel("PC1"); ylabel("PC2")
+f1, ax1 = subplots(1,1, figsize=(3,3), subplot_kw=Dict("projection"=>"3d"))
+plot_folded_ring(ax1,loadings_1[1:2,:], Z, c=Z)#c0s[1])
 tight_layout()
 
-### Plot PC traj
+f2, ax2 = subplots(1,1, figsize=(3,3), subplot_kw=Dict("projection"=>"3d"))
+plot_folded_ring(ax2,loadings_2[1:2,:], Z, c=Z)#c0s[2])
+tight_layout()
+
+
+
+
+# %% ######### Plot PC traj
+rot_match = (1.1)*π
 subs = 15
-ind_end = T_f/3/dt |> to_ind
+ind_end = 500/dt |> to_ind
 inds_plot = 1:subs:ind_end
 figure(figsize=(2.5,2.5))
 # subplot(1,2,1)
-scatter(traj_1[inds_plot,1], traj_1[inds_plot,2], alpha=.8, c="C0", s=15)
+scatter(traj_1[inds_plot,1], traj_1[inds_plot,2], alpha=.8, c=col0, s=15)
 # subplot(1,2,2)
-scatter(traj_2[inds_plot,1], -traj_2[inds_plot,2],alpha=.7, c="C1", s=14)
+traj_2_rot = rotate(rot_match)(traj_2[:,1:2]')' 
+scatter(traj_2_rot[inds_plot,1], traj_2_rot[inds_plot,2],alpha=.5, c=col1, s=8)
 xlabel("PC1"); ylabel("PC2")
 gca().set_aspect("equal")
 xticks([]); yticks([]); box(false)
 tight_layout()
 
-figure()
-plot(times, traj_1[:,1], "C0", lw=2)
-plot(times, traj_1[:,2], "C1", lw=2)
 
-####### if PCA done on LP-filtered data
+# %% ##### Plot 2 first PC loadings
 counts_1 = loadings_1[1:2,:]'
 counts_2 = loadings_2[1:2,:]'
 
@@ -291,14 +289,14 @@ xylabels() = (xlabel("PC1"); ylabel("PC2")) # xlabel("tuning to PC1"); ylabel("t
 
 s=15
 
-function plot_loadings(counts)
-    scatter(counts[:,1],counts[:,2], alpha=.4, s=s, c=Z, cmap="hsv")
+
+function plot_loadings(counts; cmap=:hsv)
+    scatter(counts[:,1],counts[:,2], alpha=.4, s=s, c=Z, cmap=cmap)
     xylabels()
     gca().set_aspect("equal")
     xticks([]); yticks([]); box(false)
     tight_layout()
 end
-
 
 figure(figsize=(4,4))
 # subplot(121)
@@ -308,18 +306,7 @@ figure(figsize=(4,4))
 # subplot(122)
 plot_loadings(counts_2)
 
-### Plot folded ring
-figure(figsize=(6,3))
-subplot(1,2,1, projection="3d")
-plot_folded_ring(counts_1', Z, c=Z)
-xylabels()
-tight_layout()
-subplot(1,2,2, projection="3d")
-plot_folded_ring(counts_2', Z, c=Z)
-xylabels()
-tight_layout()
-
-
+# %% ################# inferred locations from embeddings
 function emb_(pos) 
     emb = atan.(pos[:,2], pos[:,1]) 
     emb = mod.( (emb.-emb[1]) , 2*pi)
@@ -339,8 +326,8 @@ xticks([0,2π], ["0", L"2\pi"])
 yticks([0,2π], ["0", L"2\pi"])
 tight_layout()
 
-
-########################## Raster plot
+interrupt() #
+# %% ######################### Raster plot
 spks_rast = spk_s[2]
 
 tshow = T_f#min(1000, T_f)#times[end]/15

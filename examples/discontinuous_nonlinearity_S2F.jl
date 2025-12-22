@@ -1,5 +1,5 @@
 """
-Limit-cycle trajectories for two models with continuous and discontinuous transfer functions. See Fig. S3.
+Limit-cycle trajectories for two models with continuous and discontinuous transfer functions. See Fig. S2F.
 """
 
 
@@ -55,7 +55,7 @@ using SpecialFunctions
 
 ## ################### run
 dt = 2e-1 # ms
-T_f = 5000 #ms
+T_f = 10000 #ms
 times=0:dt:T_f
 
 
@@ -116,13 +116,7 @@ fr_on_lc(r,z, φ) = [tc(θ,r,z, φ) for θ in θs]
 
 n_plot = 19
 
-# neurons = round.(Int, LinRange(1,N,n_plot+1))[1:end-1]
-# sample_Z = Z_gaus[neurons]
-#### OR 
-# sample_Z = [[cos(2pi*(i-1)/n_plot), sin(2pi*(i-1)/n_plot)] for i in 1:n_plot]
-#### OR
-# sample_Z = [σ*randn(2) for _ in 1:n_plot]
-#### OR pick among most central neurons@
+#### pick among most central neurons
 central = sortperm(norm.(Z_gaus))[1:Int(N÷1.6)] |> sort
 neurons = central[round.(Int, LinRange(1,length(central),n_plot+1))[1:end-1]]
 sample_Z = Z_gaus[neurons]
@@ -143,32 +137,31 @@ color(z) = PyPlot.cm.hsv(angle(z))
 # ColorSchemes.phase.colors
 # color([1,0]) # red
 
-fig, axs = subplots(1,2, figsize=(6,2), )#sharey=true)
-
-for i in 1:n_plot
-    coli = color(sample_Z[:,i])
-    axs[1].plot(θs, tuning_curves_1[i], alpha=0.5, color=coli, lw=2, zorder=0)
-    axs[2].plot(θs, tuning_curves_2[i], alpha=0.5, color=coli, lw=2)
-end
-
-for ax in axs
+function plot_tuning_curves(tc, ax; lw=2, alpha=0.5, kwargs...)
+    for i in 1:n_plot
+        coli = color(sample_Z[:,i])
+        ax.plot(θs, tc[i], alpha=alpha, color=coli, lw=lw, zorder=0, kwargs...)
+    end
     ax.set_xticks(0:pi:2pi, [0,"",L"2\pi"])
     ax.set_yticks(0:1, ["0", L"$R$"])
-    # ax.set_xlabel(L"\theta")
+    tight_layout()
 end
-# axs[1].set_ylabel("firing rate")
-tight_layout()
 
-# %% where are sampled neurons
+fig1, ax1 = subplots(1,1, figsize=(3,2)) 
+plot_tuning_curves(tuning_curves_1, ax1)
+fig2, ax2 = subplots(1,1, figsize=(2.5,1.5))
+plot_tuning_curves(tuning_curves_2, ax2, lw=1.5)
+
+
+###################################### 
+# %% where are sampled neurons in circuit space
 
 Zcat = hcat(Z_gaus...)'
+
 figure(figsize=(2,2))
-scatter(Zcat[:,1], Zcat[:,2], s=5, c="C1", alpha=.3)#, c=1:N, cmap="hsv", alpha=0.5)
+scatter(Zcat[:,1], Zcat[:,2], s=5, c="C2", alpha=.3)#, c=1:N, cmap="hsv", alpha=0.5)
 scatter(sample_Z[1,:], sample_Z[2,:], s=20, c=1:n_plot, marker="o", edgecolor="k", cmap="hsv")
-
 scatter(0,0, s=50, c="k", marker="+")
-
-
 
 xticks([0],[]); yticks([0],[])
 axis("equal")
@@ -194,16 +187,16 @@ println(" done.")
 embds = loadings(M1)
 embds_2 = loadings(M2)
 
-a=1.5
-fig1,ax1 = subplots(1,1, figsize=(2*a,a))
-scatter(embds[:,1], embds[:,2]; c="C1", alpha=0.5, s=1)
+a=4
+fig1,ax1 = subplots(1,1, figsize=(a,a))
+scatter(embds[:,1], embds[:,2]; c="C1", alpha=0.5, s=15)
 null_formatting(ax1)
-scatter(embds[neurons,1], embds[neurons,2];  s=3, c=1:n_plot, marker="o", edgecolor="k", cmap="hsv")
+scatter(embds[neurons,1], embds[neurons,2];  s=40, c=1:n_plot, marker="o", edgecolor="k", cmap="hsv")
 
 fig2,ax2 = subplots(1,1, figsize=(4,4))
-scatter(embds_2[:,1], embds_2[:,2]; c=col2, alpha=0.5, s=5)
+scatter(embds_2[:,1], embds_2[:,2]; c=col2, alpha=0.5, s=15)
 null_formatting(ax2)
-scatter(embds_2[neurons,1], embds_2[neurons,2];  s=30, c=1:n_plot, marker="o", edgecolor="k", cmap="hsv")
+scatter(embds_2[neurons,1], embds_2[neurons,2];  s=40, c=1:n_plot, marker="o", edgecolor="k", cmap="hsv")
 
 
 
@@ -226,6 +219,7 @@ for ax in axs
     ax.set_xticks([],[]); ax.set_yticks([],[]); box(false)
 end
 
-fig,ax = subplots(1,1, figsize=(2.3,1.5))
-plot_phi(φ1, ax, c="C1", lw=3, alpha=0.8)
+fig,ax = subplots(1,1, figsize=(1,1))
+plot_phi(φ1, ax, c="C1", lw=3, alpha=0.5)
 plot_phi(φ2, ax, c=col2, lw=3, alpha=0.9)
+ax.set_xticks([],[]); ax.set_yticks([],[]); box(false)
