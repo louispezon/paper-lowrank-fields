@@ -1,5 +1,5 @@
 """
-Limit-cycle trajectories for two models with continuous and discontinuous transfer functions. See Fig. S2F.
+Limit-cycle trajectories for two models with continuous and discontinuous transfer functions. See Fig. S2.
 """
 
 
@@ -79,7 +79,7 @@ function null_formatting(ax; xticks_=[], yticks_=[])
     tight_layout()
 end
 
-col2 = "C2"
+col2 = "C1"
 
 # %% ############################################################
 #################### plot trajs
@@ -203,7 +203,7 @@ scatter(embds_2[neurons,1], embds_2[neurons,2];  s=40, c=1:n_plot, marker="o", e
 # %% Plot transfer functions
 function plot_phi(phi, ax; kwargs...)
     sca(ax)
-    xs = -2:0.01:2
+    xs = -2.2:0.01:2.2
     plot(xs, phi.(xs); kwargs...)
     ax.set_xticks([0],[""])
     ax.set_yticks(0:1,["0",L"$R$"])
@@ -220,6 +220,7 @@ for ax in axs
 end
 
 fig,ax = subplots(1,1, figsize=(1,1))
-plot_phi(φ1, ax, c="C1", lw=3, alpha=0.5)
-plot_phi(φ2, ax, c=col2, lw=3, alpha=0.9)
+# plot_phi(φ1, ax, c=:k, lw=4, alpha=0.5)
+plot_phi(φ2, ax, c=col2, lw=4, alpha=0.9)
 ax.set_xticks([],[]); ax.set_yticks([],[]); box(false)
+tight_layout()

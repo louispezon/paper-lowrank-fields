@@ -315,12 +315,14 @@ tight_layout()
 ## #################### 
 ###### Ordered scatter plots
 
-tshow = 700#times[end]/15
+tshow = 600#times[end]/15
 ind_tshow = tshow/dt |> round |> Int
-sp = 20
+sp = 25 ## sparsity of plotted neurons
 
 inds = sortperm( atan.(embed_gaus[:,2],embed_gaus[:,1]) )
 inds_show = inds[1:sp:N]
+print("Plotting ", length(inds_show), " neurons out of ", N, "\n")
 
-fig3=figure(figsize=(5,2.1))
-raster_plot(spikes_gaus,ind_tshow, inds_show; sparsity=1, color="k")
+fig3=figure(figsize=(3,1.8))
+raster_plot(spikes_gaus,ind_tshow, inds_show; sparsity=3, color="k")
+xticks(0:200:tshow)

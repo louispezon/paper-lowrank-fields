@@ -1,5 +1,5 @@
 """
-Example: Periodic states in ring model. See Fig. S2E.
+Example: Periodic states in ring model. See Fig. S2.
 """
 
 
