@@ -2,9 +2,12 @@ This repository contains the code necessary to reproduce the simulations and res
 
 **Linking Neural Manifolds to Circuit Structure in Recurrent Networks**
 
-*Louis Pezon, Valentin Schmutz, Wulfram Gerstner*
+Louis Pezon, Valentin Schmutz, Wulfram Gerstner. *Neuron* (2026)
 
-bioRxiv preprint: https://doi.org/10.1101/2024.02.28.582565
+
+DOI: 10.1016/j.neuron.2025.12.047
+
+url: https://doi.org/10.1016/j.neuron.2025.12.047
 
 ## Installation
 
