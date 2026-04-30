@@ -4,7 +4,6 @@ This repository contains the code necessary to reproduce the simulations and res
 
 Louis Pezon, Valentin Schmutz, Wulfram Gerstner. *Neuron* (2026)
 
-
 DOI: 10.1016/j.neuron.2025.12.047
 
 url: https://doi.org/10.1016/j.neuron.2025.12.047
@@ -43,9 +42,9 @@ The `examples/` directory contains scripts that generate specific figures from t
 include("examples/ring_vs_gaus_fig3.jl")
 ```
 
-### Running CDM Simulations
+### Running decision-making simulations
 
-To simulate the context-dependent decision-making task with the 5 RNN models:
+To simulate the context-dependent decision-making (CDM) task with the 5 RNN models:
 
 ```julia
 cd("simulate_CDM/")
